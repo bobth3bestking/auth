@@ -15,9 +15,32 @@
         .hidden-view {
             display: none;
         }
+        /* Custom scrollbar for the secrets list */
+        .custom-scrollbar::-webkit-scrollbar {
+
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 10px;
+        }
+        
+        /* Sliding text animation (Left to Right) */
+        @keyframes slide-ltr {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        .animate-slide-ltr {
+            display: inline-block;
+            white-space: nowrap;
+            animation: slide-ltr 15s linear infinite;
+
+        }
     </style>
 </head>
-
 <body class="bg-slate-900 text-white min-h-screen flex items-center justify-center p-4">
 
     <!-- LOGIN VIEW -->
@@ -34,10 +57,10 @@
         </div>
     </div>
 
+
     <!-- SIGNUP VIEW -->
     <div id="signupView" class="max-w-md w-full bg-slate-800 rounded-2xl shadow-2xl p-8 border border-slate-700 hidden-view">
         <header class="text-center mb-8">
-
             <h1 class="text-3xl font-bold bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent">Sign Up</h1>
             <p class="text-slate-400 text-sm mt-2">Create your account</p>
         </header>
@@ -54,30 +77,19 @@
         <header class="text-center mb-8">
             <div class="flex justify-between items-center mb-4">
                 <button onclick="logout()" class="text-xs text-slate-500 hover:text-white uppercase tracking-widest font-bold">Logout</button>
+
             </div>
             <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text text-transparent">
                 Authenticator
-
             </h1>
             <p id="userDisplay" class="text-slate-400 text-sm mt-2">Logged in as: ...</p>
         </header>
 
         <!-- Input Section -->
-        <div class="space-y-4">
-            <div>
-                <label for="secretKey" class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
-                    Enter Secret Key (Base32)
-                </label>
-                <input type="text" id="secretKey" 
-                    placeholder="JBSWY3DPEHPK3PXP"
-                    class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all placeholder:text-slate-500"
-                >
-            </div>
-
-            <div id="authDisplay" class="hidden animate-in fade-in zoom-in duration-300">
+        <div class="space-y-4 max-h-96 overflow-y-auto pr-2 custom-scrollbar">
+            <div id="authDisplay" class="hidden animate-in fade-in zoom-in duration-300 mb-6">
                 <div class="bg-slate-900 rounded-xl p-6 text-center border border-indigo-500/30">
                     <div class="relative group">
-
                         <span id="otpCode" class="text-5xl font-mono font-bold tracking-widest text-indigo-400 blur-lg select-none transition-all duration-300">
                             000 000
                         </span>
@@ -85,6 +97,7 @@
                             <button onclick="toggleCodeReveal()" class="bg-indigo-600/80 hover:bg-indigo-600 text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg transition-all">
                                 Click to Reveal Code
                             </button>
+
                         </div>
                     </div>
                     
@@ -97,28 +110,55 @@
                             <span id="timeLeft">30s</span>
                         </div>
                     </div>
-
                 </div>
             </div>
+
+            <!-- 5 Secret Key Slots -->
+            <div class="space-y-4">
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500">
+                    Linked Websites & Secrets
+
+                </label>
+                
+                <div class="space-y-3">
+                    <input type="text" id="secretKey1" placeholder="Site 1 Secret Key" class="secret-input w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all placeholder:text-slate-500">
+                    <input type="text" id="secretKey2" placeholder="Site 2 Secret Key" class="secret-input w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all placeholder:text-slate-500">
+                    <input type="text" id="secretKey3" placeholder="Site 3 Secret Key" class="secret-input w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all placeholder:text-slate-500">
+                    <input type="text" id="secretKey4" placeholder="Site 4 Secret Key" class="secret-input w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all placeholder:text-slate-500">
+                    <input type="text" id="secretKey5" placeholder="Site 5 Secret Key" class="secret-input w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all placeholder:text-slate-500">
+                </div>
+
+                <div class="flex flex-col gap-3">
+                    <button onclick="handleSave()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg text-xs font-bold transition-all uppercase tracking-widest">
+                        Save Secrets
+                    </button>
+                    <button class="w-full border-2 border-dashed border-slate-700 hover:border-slate-500 text-slate-500 hover:text-slate-400 py-3 rounded-lg text-xs font-bold transition-all uppercase tracking-widest">
+                        Get 5 More
+                    </button>
+                </div>
+            </div>
+
 
             <div id="errorMsg" class="hidden text-red-400 text-sm text-center bg-red-900/20 py-2 rounded-lg border border-red-900/50">
                 Invalid secret key format.
             </div>
         </div>
 
-        <footer class="mt-8 pt-6 border-t border-slate-700 text-center">
-            <p class="text-[11px] text-slate-500 leading-relaxed">
-                <strong class="text-slate-400">Sync Active:</strong> Connected to your Google Sheet.
-            </p>
+        <footer class="mt-8 pt-6 border-t border-slate-700 overflow-hidden whitespace-nowrap">
+            <div class="animate-slide-ltr text-[10px] text-slate-500 uppercase tracking-widest font-bold">
+                Sync Active: Connected to your Google Sheet • SECURE CONNECTION ESTABLISHED • System Operational •
+            </div>
         </footer>
     </div>
 
     <script>
         // PASTE YOUR GOOGLE WEB APP URL HERE
-        const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbyU-02EP9LUFrKacgNzhM-tfrufWzg-YYwONPnMJw3PtFgY0lIjCBorheXqzaJ2y9WRgQ/exec";
+        const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbwDasDzEQHN1VOZVq_Ddnp0X0R-IC73I6vwIOl5oAYWpv8lALL2pK0TPQrJ9EBDO85a/exec";
 
+        let currentUsername = ""; // Tracks logged-in user for saving
 
         // --- VIEW MANAGEMENT ---
+
         function showView(viewId) {
             document.getElementById('loginView').classList.add('hidden-view');
             document.getElementById('signupView').classList.add('hidden-view');
@@ -128,15 +168,18 @@
 
         function logout() {
             currentSecret = "";
-            document.getElementById('secretKey').value = "";
+            currentUsername = "";
+            for(let i=1; i<=5; i++) {
+                document.getElementById('secretKey' + i).value = "";
+            }
             showView('loginView');
         }
 
         // --- GOOGLE SHEETS INTEGRATION ---
         function handleSignup() {
             const username = document.getElementById('signupUsername').value;
-            const password = document.getElementById('signupPassword').value;
 
+            const password = document.getElementById('signupPassword').value;
 
             if (SHEET_API_URL === "PASTE_YOUR_URL_HERE") return alert("Please set your SHEET_API_URL in the script.");
             if (!username || !password) return alert("Please fill all fields");
@@ -155,9 +198,9 @@
                 }
             })
             .catch(err => {
-                console.error(err);
-                alert("Request sent. If data doesn't appear, please check your Apps Script deployment settings.");
 
+                console.error(err);
+                alert("Request failed. Check deployment settings.");
             });
         }
 
@@ -175,29 +218,70 @@
             .then(res => res.text())
             .then(data => {
                 if (data === "Error") {
+
                     alert("Invalid credentials");
                 } else {
-
+                    currentUsername = username;
                     document.getElementById('userDisplay').innerText = "Logged in as: " + username;
-                    document.getElementById('secretKey').value = data;
-                    currentSecret = data;
+                    
+                    // Distribute secrets to the 5 inputs
+                    const secrets = data.split(',');
+                    for(let i=0; i<5; i++) {
+                        const input = document.getElementById('secretKey' + (i + 1));
+                        if(input) input.value = secrets[i] || "";
+                    }
+                    
+                    // Set currentSecret to the first one available
+                    currentSecret = secrets[0] || "";
                     showView('appView');
                     updateOTP();
                 }
             })
             .catch(err => {
+
                 console.error(err);
-                alert("Login failed. Check the console for errors.");
+                alert("Login failed.");
+            });
+        }
+
+        function handleSave() {
+            if (!currentUsername) return alert("Not logged in.");
+
+            const secrets = [];
+            for (let i = 1; i <= 5; i++) {
+                secrets.push(document.getElementById('secretKey' + i).value.trim());
+            }
+
+            fetch(SHEET_API_URL, {
+                method: 'POST',
+                body: JSON.stringify({ 
+                    action: 'save', 
+                    username: currentUsername, 
+                    secrets: secrets 
+
+                })
+            })
+            .then(res => res.text())
+            .then(data => {
+                if (data === "Saved") {
+                    alert("Secrets saved successfully to your Google Sheet.");
+                } else {
+                    alert("Error saving: " + data);
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Failed to connect to the spreadsheet.");
             });
         }
 
         // --- CODE VISIBILITY TOGGLE ---
         function toggleCodeReveal() {
             const codeEl = document.getElementById('otpCode');
+
             const overlay = document.getElementById('revealOverlay');
             
             codeEl.classList.remove('blur-lg');
-
             overlay.classList.add('hidden');
             
             setTimeout(() => {
@@ -207,7 +291,6 @@
         }
 
         // --- TOTP LOGIC ---
-        const secretInput = document.getElementById('secretKey');
         const codeDisplay = document.getElementById('otpCode');
         const timerBar = document.getElementById('timerBar');
         const timeLeftText = document.getElementById('timeLeft');
@@ -216,9 +299,12 @@
 
         let currentSecret = "";
 
-        function updateOTP() {
 
-            if (!currentSecret) return;
+        function updateOTP() {
+            if (!currentSecret) {
+                authContainer.classList.add('hidden');
+                return;
+            }
 
             try {
                 const totp = new OTPAuth.TOTP({
@@ -233,11 +319,11 @@
                 
                 const seconds = Math.floor(Date.now() / 1000);
                 const remaining = 30 - (seconds % 30);
+
                 
                 timeLeftText.innerText = remaining + "s";
                 const percentage = (remaining / 30) * 100;
                 timerBar.style.width = percentage + "%";
-
                 
                 if (remaining <= 5) {
                     timerBar.classList.replace('bg-indigo-500', 'bg-red-500');
@@ -253,14 +339,17 @@
             }
         }
 
-        secretInput.addEventListener('input', (e) => {
-            currentSecret = e.target.value.trim();
-            if (currentSecret.length > 0) {
-                updateOTP();
 
-            } else {
-                authContainer.classList.add('hidden');
-            }
+        // Add listeners to all 5 secret inputs
+        document.querySelectorAll('.secret-input').forEach(input => {
+            input.addEventListener('input', (e) => {
+                currentSecret = e.target.value.trim();
+                updateOTP();
+            });
+            input.addEventListener('focus', (e) => {
+                currentSecret = e.target.value.trim();
+                updateOTP();
+            });
         });
 
         setInterval(updateOTP, 1000);
