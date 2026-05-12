@@ -121,15 +121,31 @@
                 </label>
                 
                 <div class="space-y-3">
-                    <input type="text" id="secretKey1" placeholder="Site 1 Secret Key" class="secret-input w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all placeholder:text-slate-500">
-                    <input type="text" id="secretKey2" placeholder="Site 2 Secret Key" class="secret-input w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all placeholder:text-slate-500">
-                    <input type="text" id="secretKey3" placeholder="Site 3 Secret Key" class="secret-input w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all placeholder:text-slate-500">
-                    <input type="text" id="secretKey4" placeholder="Site 4 Secret Key" class="secret-input w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all placeholder:text-slate-500">
-                    <input type="text" id="secretKey5" placeholder="Site 5 Secret Key" class="secret-input w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all placeholder:text-slate-500">
+                    <div class="flex gap-2">
+                        <input type="text" id="secretKey1" placeholder="Site 1 Secret Key" class="secret-input w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all placeholder:text-slate-500">
+                        <button onclick="generateAndCopy(1)" class="bg-indigo-600 hover:bg-indigo-700 px-3 rounded-lg text-[10px] font-bold uppercase whitespace-nowrap transition-all">Copy Code</button>
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="text" id="secretKey2" placeholder="Site 2 Secret Key" class="secret-input w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all placeholder:text-slate-500">
+                        <button onclick="generateAndCopy(2)" class="bg-indigo-600 hover:bg-indigo-700 px-3 rounded-lg text-[10px] font-bold uppercase whitespace-nowrap transition-all">Copy Code</button>
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="text" id="secretKey3" placeholder="Site 3 Secret Key" class="secret-input w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all placeholder:text-slate-500">
+                        <button onclick="generateAndCopy(3)" class="bg-indigo-600 hover:bg-indigo-700 px-3 rounded-lg text-[10px] font-bold uppercase whitespace-nowrap transition-all">Copy Code</button>
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="text" id="secretKey4" placeholder="Site 4 Secret Key" class="secret-input w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all placeholder:text-slate-500">
+                        <button onclick="generateAndCopy(4)" class="bg-indigo-600 hover:bg-indigo-700 px-3 rounded-lg text-[10px] font-bold uppercase whitespace-nowrap transition-all">Copy Code</button>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <input type="text" id="secretKey5" placeholder="Site 5 Secret Key" class="secret-input w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all placeholder:text-slate-500">
+                        <button onclick="generateAndCopy(5)" class="bg-indigo-600 hover:bg-indigo-700 px-3 rounded-lg text-[10px] font-bold uppercase whitespace-nowrap transition-all">Copy Code</button>
+                    </div>
                 </div>
 
                 <div class="flex flex-col gap-3">
-                    <button onclick="handleSave()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg text-xs font-bold transition-all uppercase tracking-widest">
+                    <button onclick="handleSave()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-lg text-xs font-bold transition-all uppercase tracking-widest">
                         Save Secrets
                     </button>
                     <button class="w-full border-2 border-dashed border-slate-700 hover:border-slate-500 text-slate-500 hover:text-slate-400 py-3 rounded-lg text-xs font-bold transition-all uppercase tracking-widest">
@@ -138,10 +154,10 @@
                 </div>
             </div>
 
-
             <div id="errorMsg" class="hidden text-red-400 text-sm text-center bg-red-900/20 py-2 rounded-lg border border-red-900/50">
                 Invalid secret key format.
             </div>
+
         </div>
 
         <footer class="mt-8 pt-6 border-t border-slate-700 overflow-hidden whitespace-nowrap">
@@ -153,15 +169,15 @@
 
     <script>
         // PASTE YOUR GOOGLE WEB APP URL HERE
-        const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbwDasDzEQHN1VOZVq_Ddnp0X0R-IC73I6vwIOl5oAYWpv8lALL2pK0TPQrJ9EBDO85a/exec";
+        const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbyU-02EP9LUFrKacgNzhM-tfrufWzg-YYwONPnMJw3PtFgY0lIjCBorheXqzaJ2y9WRgQ/exec";
 
         let currentUsername = ""; // Tracks logged-in user for saving
 
         // --- VIEW MANAGEMENT ---
-
         function showView(viewId) {
             document.getElementById('loginView').classList.add('hidden-view');
             document.getElementById('signupView').classList.add('hidden-view');
+
             document.getElementById('appView').classList.add('hidden-view');
             document.getElementById(viewId).classList.remove('hidden-view');
         }
@@ -178,10 +194,10 @@
         // --- GOOGLE SHEETS INTEGRATION ---
         function handleSignup() {
             const username = document.getElementById('signupUsername').value;
-
             const password = document.getElementById('signupPassword').value;
 
             if (SHEET_API_URL === "PASTE_YOUR_URL_HERE") return alert("Please set your SHEET_API_URL in the script.");
+
             if (!username || !password) return alert("Please fill all fields");
 
             fetch(SHEET_API_URL, {
@@ -198,10 +214,10 @@
                 }
             })
             .catch(err => {
-
                 console.error(err);
                 alert("Request failed. Check deployment settings.");
             });
+
         }
 
         function handleLogin() {
@@ -218,31 +234,29 @@
             .then(res => res.text())
             .then(data => {
                 if (data === "Error") {
-
                     alert("Invalid credentials");
                 } else {
                     currentUsername = username;
+
                     document.getElementById('userDisplay').innerText = "Logged in as: " + username;
                     
-                    // Distribute secrets to the 5 inputs
                     const secrets = data.split(',');
                     for(let i=0; i<5; i++) {
                         const input = document.getElementById('secretKey' + (i + 1));
                         if(input) input.value = secrets[i] || "";
                     }
                     
-                    // Set currentSecret to the first one available
                     currentSecret = secrets[0] || "";
                     showView('appView');
                     updateOTP();
                 }
             })
             .catch(err => {
-
                 console.error(err);
                 alert("Login failed.");
             });
         }
+
 
         function handleSave() {
             if (!currentUsername) return alert("Not logged in.");
@@ -258,12 +272,12 @@
                     action: 'save', 
                     username: currentUsername, 
                     secrets: secrets 
-
                 })
             })
             .then(res => res.text())
             .then(data => {
                 if (data === "Saved") {
+
                     alert("Secrets saved successfully to your Google Sheet.");
                 } else {
                     alert("Error saving: " + data);
@@ -275,19 +289,56 @@
             });
         }
 
-        // --- CODE VISIBILITY TOGGLE ---
+        // --- CODE VISIBILITY & ACTIONS ---
         function toggleCodeReveal() {
             const codeEl = document.getElementById('otpCode');
-
             const overlay = document.getElementById('revealOverlay');
             
             codeEl.classList.remove('blur-lg');
             overlay.classList.add('hidden');
             
+
             setTimeout(() => {
                 codeEl.classList.add('blur-lg');
                 overlay.classList.remove('hidden');
             }, 10000);
+        }
+
+        function generateAndCopy(index) {
+            const input = document.getElementById('secretKey' + index);
+            const secret = input.value.trim();
+            
+            if (!secret) return alert("No secret key found in Site " + index);
+            
+            // Set as current and update display
+            currentSecret = secret;
+            updateOTP();
+            
+            // Reveal code
+            const codeEl = document.getElementById('otpCode');
+            const overlay = document.getElementById('revealOverlay');
+
+            codeEl.classList.remove('blur-lg');
+            overlay.classList.add('hidden');
+            
+            // Copy code to clipboard (removes the space for pure code)
+            const rawCode = codeEl.innerText.replace(/\s/g, "");
+            const tempInput = document.createElement("input");
+            document.body.appendChild(tempInput);
+            tempInput.value = rawCode;
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+            
+            // Notification or visual feedback
+            console.log("Code copied to clipboard: " + rawCode);
+            
+            // Re-hide after 20 seconds
+            setTimeout(() => {
+                codeEl.classList.add('blur-lg');
+                overlay.classList.remove('hidden');
+
+            }, 20000);
         }
 
         // --- TOTP LOGIC ---
@@ -299,7 +350,6 @@
 
         let currentSecret = "";
 
-
         function updateOTP() {
             if (!currentSecret) {
                 authContainer.classList.add('hidden');
@@ -307,6 +357,7 @@
             }
 
             try {
+
                 const totp = new OTPAuth.TOTP({
                     secret: currentSecret.replace(/\s/g, ""),
                     algorithm: "SHA1",
@@ -319,7 +370,6 @@
                 
                 const seconds = Math.floor(Date.now() / 1000);
                 const remaining = 30 - (seconds % 30);
-
                 
                 timeLeftText.innerText = remaining + "s";
                 const percentage = (remaining / 30) * 100;
@@ -327,6 +377,7 @@
                 
                 if (remaining <= 5) {
                     timerBar.classList.replace('bg-indigo-500', 'bg-red-500');
+
                 } else {
                     timerBar.classList.replace('bg-red-500', 'bg-indigo-500');
                 }
@@ -339,14 +390,14 @@
             }
         }
 
-
-        // Add listeners to all 5 secret inputs
+        // Add listeners to secret inputs
         document.querySelectorAll('.secret-input').forEach(input => {
             input.addEventListener('input', (e) => {
                 currentSecret = e.target.value.trim();
                 updateOTP();
             });
             input.addEventListener('focus', (e) => {
+
                 currentSecret = e.target.value.trim();
                 updateOTP();
             });
