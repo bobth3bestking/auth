@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web TOTP Authenticator</title>
+    <!-- Tailwind CSS for modern, responsive UI -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- OTPAuth library for RFC 6238 compliance -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/otpauth/9.1.2/otpauth.umd.min.js"></script>
+    <style>
+        .progress-bar {
+            transition: width 1s linear;
+        }
+        .hidden-view {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-900 text-white min-h-screen flex items-center justify-center p-4">
+
+    <!-- LOGIN VIEW -->
+    <div id="loginView" class="max-w-md w-full bg-slate-800 rounded-2xl shadow-2xl p-8 border border-slate-700">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text text-transparent">Login</h1>
+            <p class="text-slate-400 text-sm mt-2">Access your saved GitHub keys</p>
+        </header>
+        <div class="space-y-4">
+            <input type="text" id="loginUsername" placeholder="Username" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+            <input type="password" id="loginPassword" placeholder="Password" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+            <button onclick="handleLogin()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition-colors">Sign In</button>
+            <p class="text-center text-sm text-slate-500">Don't have an account? <a href="#" onclick="showView('signupView')" class="text-indigo-400 hover:underline">Sign Up</a></p>
+        </div>
+    </div>
+
+    <!-- SIGNUP VIEW -->
+    <div id="signupView" class="max-w-md w-full bg-slate-800 rounded-2xl shadow-2xl p-8 border border-slate-700 hidden-view">
+        <header class="text-center mb-8">
+
+            <h1 class="text-3xl font-bold bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent">Sign Up</h1>
+            <p class="text-slate-400 text-sm mt-2">Create your account</p>
+        </header>
+        <div class="space-y-4">
+            <input type="text" id="signupUsername" placeholder="Username" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+            <input type="password" id="signupPassword" placeholder="Password" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+            <button onclick="handleSignup()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-lg transition-colors">Create Account</button>
+            <p class="text-center text-sm text-slate-500">Already have an account? <a href="#" onclick="showView('loginView')" class="text-emerald-400 hover:underline">Login</a></p>
+        </div>
+    </div>
+
+    <!-- AUTHENTICATOR VIEW (MAIN APP) -->
+    <div id="appView" class="max-w-md w-full bg-slate-800 rounded-2xl shadow-2xl p-8 border border-slate-700 hidden-view">
+        <header class="text-center mb-8">
+            <div class="flex justify-between items-center mb-4">
+                <button onclick="logout()" class="text-xs text-slate-500 hover:text-white uppercase tracking-widest font-bold">Logout</button>
+            </div>
+            <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text text-transparent">
+                Authenticator
+
+            </h1>
+            <p id="userDisplay" class="text-slate-400 text-sm mt-2">Logged in as: ...</p>
+        </header>
+
+        <!-- Input Section -->
+        <div class="space-y-4">
+            <div>
+                <label for="secretKey" class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
+                    Enter Secret Key (Base32)
+                </label>
+                <input type="text" id="secretKey" 
+                    placeholder="JBSWY3DPEHPK3PXP"
+                    class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all placeholder:text-slate-500"
+                >
+            </div>
+
+            <div id="authDisplay" class="hidden animate-in fade-in zoom-in duration-300">
+                <div class="bg-slate-900 rounded-xl p-6 text-center border border-indigo-500/30">
+                    <div class="relative group">
+
+                        <span id="otpCode" class="text-5xl font-mono font-bold tracking-widest text-indigo-400 blur-lg select-none transition-all duration-300">
+                            000 000
+                        </span>
+                        <div id="revealOverlay" class="absolute inset-0 flex items-center justify-center">
+                            <button onclick="toggleCodeReveal()" class="bg-indigo-600/80 hover:bg-indigo-600 text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg transition-all">
+                                Click to Reveal Code
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <div class="h-1.5 w-full bg-slate-700 rounded-full overflow-hidden">
+                            <div id="timerBar" class="h-full bg-indigo-500 progress-bar" style="width: 100%;"></div>
+                        </div>
+                        <div class="flex justify-between mt-2 text-[10px] uppercase font-bold text-slate-500">
+                            <span>Valid for</span>
+                            <span id="timeLeft">30s</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div id="errorMsg" class="hidden text-red-400 text-sm text-center bg-red-900/20 py-2 rounded-lg border border-red-900/50">
+                Invalid secret key format.
+            </div>
+        </div>
+
+        <footer class="mt-8 pt-6 border-t border-slate-700 text-center">
+            <p class="text-[11px] text-slate-500 leading-relaxed">
+                <strong class="text-slate-400">Sync Active:</strong> Connected to your Google Sheet.
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // PASTE YOUR GOOGLE WEB APP URL HERE
+        const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbWTKOeGpBxHbyylpJlBGEbOCEeoQIy8dUiakCY6eKI3SVY68-6_7M3tCg_OJTfZV0y-A/exec";
+
+
+        // --- VIEW MANAGEMENT ---
+        function showView(viewId) {
+            document.getElementById('loginView').classList.add('hidden-view');
+            document.getElementById('signupView').classList.add('hidden-view');
+            document.getElementById('appView').classList.add('hidden-view');
+            document.getElementById(viewId).classList.remove('hidden-view');
+        }
+
+        function logout() {
+            currentSecret = "";
+            document.getElementById('secretKey').value = "";
+            showView('loginView');
+        }
+
+        // --- GOOGLE SHEETS INTEGRATION ---
+        function handleSignup() {
+            const username = document.getElementById('signupUsername').value;
+            const password = document.getElementById('signupPassword').value;
+
+
+            if (SHEET_API_URL === "PASTE_YOUR_URL_HERE") return alert("Please set your SHEET_API_URL in the script.");
+            if (!username || !password) return alert("Please fill all fields");
+
+            fetch(SHEET_API_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify({ action: 'signup', username, password })
+            }).then(() => {
+                alert("Signup successful! Please log in.");
+                showView('loginView');
+            });
+        }
+
+        function handleLogin() {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if (SHEET_API_URL === "PASTE_YOUR_URL_HERE") return alert("Please set your SHEET_API_URL in the script.");
+            if (!username || !password) return alert("Please fill all fields");
+
+
+            fetch(SHEET_API_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'login', username, password })
+            })
+            .then(res => res.text())
+            .then(data => {
+                if (data === "Error") {
+                    alert("Invalid credentials");
+                } else {
+                    document.getElementById('userDisplay').innerText = "Logged in as: " + username;
+                    document.getElementById('secretKey').value = data;
+                    currentSecret = data;
+                    showView('appView');
+                    updateOTP();
+                }
+            });
+        }
+
+        // --- CODE VISIBILITY TOGGLE ---
+
+        function toggleCodeReveal() {
+            const codeEl = document.getElementById('otpCode');
+            const overlay = document.getElementById('revealOverlay');
+            
+            codeEl.classList.remove('blur-lg');
+            overlay.classList.add('hidden');
+            
+            setTimeout(() => {
+                codeEl.classList.add('blur-lg');
+                overlay.classList.remove('hidden');
+            }, 10000);
+        }
+
+        // --- TOTP LOGIC ---
+        const secretInput = document.getElementById('secretKey');
+        const codeDisplay = document.getElementById('otpCode');
+        const timerBar = document.getElementById('timerBar');
+        const timeLeftText = document.getElementById('timeLeft');
+        const authContainer = document.getElementById('authDisplay');
+
+        const errorMsg = document.getElementById('errorMsg');
+
+        let currentSecret = "";
+
+        function updateOTP() {
+            if (!currentSecret) return;
+
+            try {
+                const totp = new OTPAuth.TOTP({
+                    secret: currentSecret.replace(/\s/g, ""),
+                    algorithm: "SHA1",
+                    digits: 6,
+                    period: 30
+                });
+
+                const code = totp.generate();
+                codeDisplay.innerText = code.slice(0, 3) + " " + code.slice(3);
+                
+                const seconds = Math.floor(Date.now() / 1000);
+
+                const remaining = 30 - (seconds % 30);
+                
+                timeLeftText.innerText = remaining + "s";
+                const percentage = (remaining / 30) * 100;
+                timerBar.style.width = percentage + "%";
+                
+                if (remaining <= 5) {
+                    timerBar.classList.replace('bg-indigo-500', 'bg-red-500');
+                } else {
+                    timerBar.classList.replace('bg-red-500', 'bg-indigo-500');
+                }
+
+                errorMsg.classList.add('hidden');
+                authContainer.classList.remove('hidden');
+            } catch (err) {
+                authContainer.classList.add('hidden');
+                errorMsg.classList.remove('hidden');
+            }
+        }
+
+
+        secretInput.addEventListener('input', (e) => {
+            currentSecret = e.target.value.trim();
+            if (currentSecret.length > 0) {
+                updateOTP();
+            } else {
+                authContainer.classList.add('hidden');
+            }
+        });
+
+        setInterval(updateOTP, 1000);
+    </script>
+</body>
+</html>
+
+
